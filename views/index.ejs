@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+    <% let titlepage = "piATMEGAno8"; %>
+<head>
+	<title> <%- titlepage %> </title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<link rel="stylesheet" type="text/css" href="/css/piano.css">
+
+	<script src="/js/core/jquery.min.js"></script>
+	<script src="/js/core/bootstrap.min.js"></script>
+</head>
+<body>
+
+  <section id="wrap">
+    <header>
+      <h1>Hùng Quý Thắng</h1>
+      <h2><%- titlepage %></h2>
+      <h2 class="mcu-connection-status"></h2>
+    </header>
+    <section id="main">
+      <div class="nowplaying"></div>
+      <div class="keys">
+          <% for(let i = 4; i < 5; i++) { %>
+            <div data-key="65" class="key" data-note="C<%- i %>">
+                <span class="hints">A</span>
+            </div>
+            <div data-key="87" class="key sharp" data-note="C<%- i %>#">
+                <span class="hints">W</span>
+            </div>
+            <div data-key="83" class="key" data-note="D<%- i %>">
+                <span class="hints">S</span>
+            </div>
+            <div data-key="69" class="key sharp" data-note="D<%- i %>#">
+                <span class="hints">E</span>
+            </div>
+            <div data-key="68" class="key" data-note="E<%- i %>">
+                <span class="hints">D</span>
+            </div>
+            <div data-key="70" class="key" data-note="F<%- i %>">
+                <span class="hints">F</span>
+            </div>
+            <div data-key="84" class="key sharp" data-note="F<%- i %>#">
+                <span class="hints">T</span>
+            </div>
+            <div data-key="71" class="key" data-note="G<%- i %>">
+                <span class="hints">G</span>
+            </div>
+            <div data-key="89" class="key sharp" data-note="G<%- i %>#">
+                <span class="hints">Y</span>
+            </div>
+            <div data-key="72" class="key" data-note="A<%- i %>">
+                <span class="hints">H</span>
+            </div>
+            <div data-key="85" class="key sharp" data-note="A<%- i %>#">
+                <span class="hints">U</span>
+            </div>
+            <div data-key="74" class="key" data-note="B<%- i %>">
+                <span class="hints">J</span>
+            </div>
+            <div data-key="75" class="key" data-note="C<%- i+1 %>">
+                <span class="hints">K</span>
+            </div>
+            <div data-key="79" class="key sharp" data-note="C<%- i+1 %>#">
+                <span class="hints">O</span>
+            </div>
+            <div data-key="76" class="key" data-note="D<%- i+1%>">
+                <span class="hints">L</span>
+            </div>
+            <div data-key="80" class="key sharp" data-note="D<%- i+1%>#">
+                <span class="hints">P</span>
+            </div>
+            <div data-key="186" class="key" data-note="E<%- i+1 %>">
+                <span class="hints">;</span>
+            </div>
+          <% } %>
+
+      </div>
+      </section>
+  </section>
+
+ <script type="text/javascript">
+      const  keys = document.querySelectorAll('.key'),
+      note = document.querySelector('.nowplaying'),
+      hints = document.querySelectorAll('.hints');
+
+      function playNote(e){
+        const audio = document.querySelector(`audio[data-key="${e.keyCode}"]`),
+        key = document.querySelector(`.key[data-key="${e.keyCode}"]`);
+
+        if(!key) return;
+
+        const keyNote = key.getAttribute('data-note');
+
+        key.classList.add('playing'); 
+        note.innerHTML = keyNote;
+        // audio.currentTime = 0;
+        // audio.play(); 
+
+        let data = {
+            key: keyNote
+        }
+
+        $.post('/play', data, function (data, status, xhr) {
+            $('.mcu-connection-status').text(data);
+        });
+      }
+
+      function removeTransition(e){
+        if(e.propertyName !== 'transform') return;
+        this.classList.remove('playing');
+      }
+
+      function hintsOn(e, index) {
+        e.setAttribute('style', 'transition-delay:' + index * 50 + 'ms');
+      }
+
+      hints.forEach(hintsOn);
+
+      keys.forEach(key => key.addEventListener('transitionend', removeTransition));
+
+      window.addEventListener('keydown', playNote);
+
+      // Show message when touch device is detected
+      if(typeof window.ontouchstart !== 'undefined')  alert('This feature requires a physical keyboard :(');
+     
+    
+ </script>
+  </body>
+</html>
